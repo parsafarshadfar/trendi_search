@@ -36,7 +36,7 @@ os.environ["GOOGLE_CSE_ID"] = CSE_ID
 @st.cache_resource
 def load_summarizer():
     try:
-        return pipeline("summarization", model="facebook/bart-large-cnn")
+        return pipeline("summarization", model="facebook/bart-base")
     except Exception as e:
         st.error(f"Error loading summarization model: {e}")
         return None
@@ -217,7 +217,7 @@ with st.expander("📖 User Guide"):
     - **Search**: Click to perform the search.
     - **Summarize**: For each result (excluding images), click the "Summarize" button to generate a summary of the content.
 
-    **Note:** Summarization uses a [**facebook/bart-large-cnn**](https://huggingface.co/facebook/bart-large-cnn) model from Hugging Face and may take a few seconds per request.
+    **Note:** Summarization uses a [**facebook/bart-base**](https://huggingface.co/facebook/bart-base) model from Hugging Face and may take a few seconds per request.
 
     Enjoy exploring trends and search results with ease!
     """)
