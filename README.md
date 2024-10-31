@@ -28,7 +28,7 @@ Try my app: https://trendisearch.streamlit.app/
    pip install -r requirements.txt
    ```
 
-3. Add your tokens to the app.py:
+3. Add your google tokens to the app.py:
    - **API_KEY**: Google Custom Search JSON API key.
    - **CSE_ID**: Google Custom Search Engine ID. 
    
