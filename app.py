@@ -290,7 +290,7 @@ with tabs[1]:
     summarizer = load_summarizer()
     
     # Search Query
-    query = st.text_input("Search Query", value="persian gulf", help="Enter the term you want to search on Google")
+    query = st.text_input("Search Query", value="Persian Gulf history", help="Enter the term you want to search on Google")
 
     # Filters
     st.subheader("Filters")
