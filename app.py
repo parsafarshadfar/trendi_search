@@ -36,12 +36,13 @@ os.environ["GOOGLE_CSE_ID"] = CSE_ID
 @st.cache_resource
 def load_summarizer():
     try:
-        return pipeline("summarization", model="facebook/bart-base")
+        with st.spinner("Loading summarization model..."):
+            return pipeline("summarization", model="facebook/bart-base")
     except Exception as e:
         st.error(f"Error loading summarization model: {e}")
         return None
 
-summarizer = load_summarizer()
+
 
 # Function Definitions
 def google_search(query, api_key, cse_id, num=10, date_restrict=None, search_type=None, domain_filter=None):
@@ -285,7 +286,9 @@ with tabs[0]:
 ### Google Search & Summarizer Tab ###
 with tabs[1]:
     st.header("Google Custom Search")
-
+    
+    summarizer = load_summarizer()
+    
     # Search Query
     query = st.text_input("Search Query", value="Iran", help="Enter the term you want to search on Google")
 
