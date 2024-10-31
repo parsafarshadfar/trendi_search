@@ -1,5 +1,5 @@
 
-# Trendi Search
+# 🔍 Trendi Search
 
 Trendi Search is a web application built with Streamlit that allows users to explore Google Trends data and perform Google Custom Searches with summaries. It features trend analysis of specified keywords and offers summarization of web content using a pre-trained [**facebook/bart-base**](https://huggingface.co/facebook/bart-base) model.
 
@@ -7,9 +7,9 @@ Try my app: https://trendisearch.streamlit.app/
 
 ## Features
 
-- **Google Trends Analysis**: Visualize trends for specified keywords over a selected time frame.
-- **Trending Regions Visualization**: Display a geographic map showing the regions where a keyword is trending.
-- **Google Custom Search with Summarizer**: Perform a Google Custom Search with options to filter by date range, content type, and domain. Summarize content from the results for quick insights.
+- **📈 Google Trends Analysis**: Visualize trends for specified keywords over a selected time frame.
+- **📉 Trending Regions Visualization**: Display a geographic map showing the regions where a keyword is trending.
+- **🌐 Google Custom Search with Summarizer**: Perform a Google Custom Search with options to filter by date range, content type, and domain. Summarize content from the results for quick insights.
 
 ## Overview
 
