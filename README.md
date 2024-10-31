@@ -29,8 +29,8 @@ Try my app: https://trendisearch.streamlit.app/
    ```
 
 3. Add your tokens to the app.py:
-   - **API_KEY**: Google Custom Search JSON API key. You can obtain one from [here](https://developers.google.com/custom-search/v1/introduction). 
-   - **CSE_ID**: Google Custom Search Engine ID. You can obtain one from [here](https://programmablesearchengine.google.com/). 
+   - **API_KEY**: Google Custom Search JSON API key.
+   - **CSE_ID**: Google Custom Search Engine ID. 
    
 
 ## Usage
