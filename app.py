@@ -20,7 +20,7 @@ st.set_page_config(
 
 
 # Constants for Google Custom Search engine
-API_KEY = st.secrets["YOUR_API_KEY"]  # Replace with your Google Custom Search JSON API key #get it from here: https://developers.google.com/custom-search/v1/introduction #the line would be like this: API_KEY ='hfra......sbhfasjfhJ'
+API_KEY = st.secrets["API_KEY"]  # Replace with your Google Custom Search JSON API key #get it from here: https://developers.google.com/custom-search/v1/introduction #the line would be like this: API_KEY ='hfra......sbhfasjfhJ'
 CSE_ID = st.secrets["CSE_ID"]  # Replace with your Google Custom Search Engine ID (CSE ID) # get it from here: https://programmablesearchengine.google.com/
 
 # Set environment variables
