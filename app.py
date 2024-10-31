@@ -202,14 +202,14 @@ with st.expander("📖 User Guide"):
     st.markdown("""
     ### Welcome to the Trendi Search!
 
-    **Google Trends Tab:**
+    **📈 Google Trends Tab:**
     - **Number of Keywords**: Specify how many keywords you want to analyze.
     - **Keywords**: Enter the keywords you wish to explore.
     - **Timeframe**: Select the start and end dates for the trend analysis.
     - **Show Trends**: Click to generate and view the trend graphs.
     - **Trending Regions**: Click to view a geographic map of where the first keyword is trending.
 
-    **Google Search & Summarizer Tab:**
+    **🔍 Google Search & Summarizer Tab:**
     - **Search Query**: Enter the term you want to search on Google.
     - **Filters**:
         - **Date Range**: Select from predefined date ranges to restrict search results.
@@ -233,7 +233,7 @@ if 'search_id' not in st.session_state:
     st.session_state['search_id'] = 0
 
 # Tabs
-tabs = st.tabs(["🔍 Google Trends", "🌐 Google Search & Summarizer"])
+tabs = st.tabs(["📈 Google Trends", "🔍 Google Search & Summarizer"])
 
 ### Google Trends Tab ###
 with tabs[0]:
