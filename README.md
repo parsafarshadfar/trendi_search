@@ -5,7 +5,7 @@ Trendi Search is a web application built with Streamlit that allows users to exp
 
 Try my app: https://trendisearch.streamlit.app/ 
 
-## Features
+## Features 
 
 - **📈 Google Trends Analysis**: Visualize trends for specified keywords over a selected time frame.
 - **📉 Trending Regions Visualization**: Display a geographic map showing the regions where a keyword is trending.
