@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta
 import os
+import time
 
 # Initialize Streamlit App
 st.set_page_config(
