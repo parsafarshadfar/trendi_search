@@ -38,7 +38,7 @@ def fetch_free_proxies():
     proxies = []
     for url in proxy_sources:
         try:
-            response = requests.get(url, timeout=10)
+            response = requests.get(url, timeout=5)
             if response.status_code == 200:
                 proxy_list = response.text.strip().split('\n')
                 for proxy in proxy_list:
@@ -67,7 +67,7 @@ def test_proxy(proxy, speed_threshold=2):
     test_url = "https://www.google.com"
     start_time = time.time()
     try:
-        response = requests.get(test_url, proxies=proxy, timeout=5)
+        response = requests.get(test_url, proxies=proxy, timeout=speed_threshold)
         elapsed = time.time() - start_time
         # Proxy is considered reliable if response is OK and response time is below threshold
         return response.status_code == 200 and elapsed <= speed_threshold
