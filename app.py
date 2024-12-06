@@ -48,14 +48,31 @@ def fetch_free_proxies():
             st.error(f"Error in fetching some free proxies. They were supposed to be used for ditching the 'exceeding limit error' on Google 'free API' requests.")
     return proxies
 
-def test_proxy(proxy):
-    # Test the proxy by making a simple request to a known endpoint
+import time
+import requests
+
+def test_proxy(proxy, speed_threshold=2):
+    """
+    Test the given proxy by making a simple request to a known endpoint.
+    Also measure the response time to ensure the proxy is not too slow.
+
+    Parameters:
+    - proxy (dict): A dictionary with "http" and/or "https" keys.
+    - speed_threshold (int or float): Maximum acceptable response time in seconds.
+
+    Returns:
+    - bool: True if the proxy is working and fast enough, False otherwise.
+    """
     test_url = "https://www.google.com"
+    start_time = time.time()
     try:
         response = requests.get(test_url, proxies=proxy, timeout=5)
-        return response.status_code == 200
+        elapsed = time.time() - start_time
+        # Proxy is considered reliable if response is OK and response time is below threshold
+        return response.status_code == 200 and elapsed <= speed_threshold
     except Exception:
         return False
+
 
 def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
     # Try without proxy first
