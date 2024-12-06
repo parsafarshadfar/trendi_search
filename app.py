@@ -45,7 +45,7 @@ def fetch_free_proxies():
                     if p:
                         proxies.append({"http": f"http://{p}", "https": f"http://{p}"})
         except Exception as e:
-            st.error(f"Error fetching some free proxies: {e}")
+            st.error(f"Error in fetching some free proxies. They were supposed to be used for ditching the 'exceeding limit error' on Google 'free API' requests.")
     return proxies
 
 def test_proxy(proxy):
@@ -91,7 +91,7 @@ def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
                             # Some other error, just continue
                             continue
             # If no proxy worked
-            st.error("⚠️ Too many requests (429) have been made. Tried using free proxies, but they did not work. Please try again later.")
+            st.error("⚠️ Too many requests have been made by this streamlit server to Google 'free API' today. I also tried to use some free proxies to ditch Google, but the free proxies didn't work. Please try the app later.")
             st.stop()
         else:
             # Some other error
