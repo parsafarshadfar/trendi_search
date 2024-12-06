@@ -87,7 +87,7 @@ def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
         data = try_build(pytrends)
         return pytrends
     except Exception as e:
-        # If we get 429, try proxies
+        # If we get 429 error from google, try proxies
         if "429" in str(e):
             proxies = fetch_free_proxies()
             attempts = 0
@@ -101,7 +101,7 @@ def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
                         data = try_build(pytrends)
                         return pytrends
                     except Exception as e2:
-                        # If still 429 or some other error, try next proxy
+                        # If still 429 error or some other error, try next proxy
                         attempts += 1
                         continue
                 else:
