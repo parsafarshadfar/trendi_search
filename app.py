@@ -71,34 +71,42 @@ def test_proxy(proxy, speed_threshold=2):
 
 
 def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
+    max_attempts = 100  # limit attempts to prevent infinite loop
+
+    def try_build(pytrends_instance):
+        pytrends_instance.build_payload(keywords, timeframe=timeframe)
+        if is_region:
+            data = pytrends_instance.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
+        else:
+            data = pytrends_instance.interest_over_time()
+        return data
+
     # Try without proxy first
     try:
-        pytrends = TrendReq(hl='en-US', tz=360)
-        pytrends.build_payload(keywords, timeframe=timeframe)
-        if is_region:
-            data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
-        else:
-            data = pytrends.interest_over_time()
+        pytrends = TrendReq(hl='en-US', tz=360, requests_args={'timeout': 10})
+        data = try_build(pytrends)
         return pytrends
     except Exception as e:
+        # If we get 429, try proxies
         if "429" in str(e):
             proxies = fetch_free_proxies()
+            attempts = 0
             for proxy in proxies:
+                if attempts >= max_attempts:
+                    break
+                # Test proxy before using
                 if test_proxy(proxy):
-                    # Try pytrends with this proxy
                     try:
-                        pytrends = TrendReq(hl='en-US', tz=360, proxies=proxy)
-                        pytrends.build_payload(keywords, timeframe=timeframe)
-                        if is_region:
-                            data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
-                        else:
-                            data = pytrends.interest_over_time()
+                        pytrends = TrendReq(hl='en-US', tz=360, proxies=proxy, requests_args={'timeout': 10})
+                        data = try_build(pytrends)
                         return pytrends
                     except Exception as e2:
-                        if "429" in str(e2):
-                            continue  # Try next proxy
-                        else:
-                            continue
+                        # If still 429 or some other error, try next proxy
+                        attempts += 1
+                        continue
+                else:
+                    attempts += 1
+                    continue
             # If no proxy worked
             st.error("⚠️ Too many requests have been made by this streamlit server to Google 'free API' today. I also tried to use some free proxies, but they didn't work. Please try again later.")
             return None
