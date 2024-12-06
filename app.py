@@ -74,28 +74,29 @@ def test_proxy(proxy, speed_threshold=2):
     except Exception:
         return False
 
-
 def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
     # Try without proxy first
-    pytrends = TrendReq(hl='en-US', tz=360, requests_args={'timeout': 5})
+    pytrends = TrendReq(hl='en-US', tz=360, requests_args={'timeout': 10})
     try:
         pytrends.build_payload(keywords, timeframe=timeframe)
         if is_region:
-            # Just attempt to fetch region data
             data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
         else:
-            # Attempt to fetch interest over time data
             data = pytrends.interest_over_time()
         return pytrends
     except Exception as e:
-        # Check if it's a 429 error and try proxies if so
         if "429" in str(e):
             proxies = fetch_free_proxies()
             for proxy in proxies:
                 if test_proxy(proxy):
-                    # Try pytrends with this proxy and a timeout
                     try:
-                        pytrends = TrendReq(hl='en-US', tz=360, proxies=proxy, requests_args={'timeout': 10})
+                        # Note: Only set timeout via requests_args, do not use any other timeout arguments
+                        pytrends = TrendReq(
+                            hl='en-US', 
+                            tz=360, 
+                            proxies=proxy, 
+                            requests_args={'timeout': 10}
+                        )
                         pytrends.build_payload(keywords, timeframe=timeframe)
                         if is_region:
                             data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
@@ -104,16 +105,14 @@ def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
                         return pytrends
                     except Exception as e2:
                         if "429" in str(e2):
-                            continue  # Try next proxy
-                        else:
-                            # Some other error, just continue
                             continue
-            # If no proxy worked
-            st.error("⚠️ Too many requests have been made by this streamlit server to Google 'free API' today. I also tried to use some free proxies, but they didn't work. Please try again later.")
+                        else:
+                            continue
+            st.error("⚠️ Too many requests to Google 'free API' today, and proxies didn't help. Try again later.")
             st.stop()
         else:
-            # Some other error
             raise e
+
 
 
 
