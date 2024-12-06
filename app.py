@@ -6,7 +6,7 @@ from pytrends.request import TrendReq
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta
-import os 
+import os
 
 # Initialize Streamlit App
 st.set_page_config(
@@ -17,8 +17,6 @@ st.set_page_config(
 )
 
 
-
-
 # Constants for Google Custom Search engine
 API_KEY = st.secrets["API_KEY"]  # Replace with your Google Custom Search JSON API key #get it from here: https://developers.google.com/custom-search/v1/introduction #the line would be like this: API_KEY ='hfra......sbhfasjfhJ'
 CSE_ID = st.secrets["CSE_ID"]  # Replace with your Google Custom Search Engine ID (CSE ID) # get it from here: https://programmablesearchengine.google.com/ #the line would be like this: CSE_IDY ='123......sbhfasjfhJ'
@@ -27,9 +25,77 @@ CSE_ID = st.secrets["CSE_ID"]  # Replace with your Google Custom Search Engine I
 os.environ["GOOGLLE_JSON_API_KEY"] = API_KEY
 os.environ["GOOGLE_CSE_ID"] = CSE_ID
 
+############# PROXY RELATED FUNCTIONS #############
+# Function to fetch free proxies from an online source ## to be used on google 'free API requests' if google is giving "too many requests" 429 error
+def fetch_free_proxies():
+    proxy_sources = [
+        "https://www.proxyscan.io/api/proxy?type=https",
+        "https://www.proxy-list.download/api/v1/get?type=https",
+        "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt",
+        "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt"
+    ]
+    proxies = []
+    for url in proxy_sources:
+        try:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                proxy_list = response.text.strip().split('\n')
+                for proxy in proxy_list:
+                    p = proxy.strip()
+                    if p:
+                        proxies.append({"http": f"http://{p}", "https": f"http://{p}"})
+        except Exception as e:
+            st.error(f"Error fetching some free proxies: {e}")
+    return proxies
 
+def test_proxy(proxy):
+    # Test the proxy by making a simple request to a known endpoint
+    test_url = "https://www.google.com"
+    try:
+        response = requests.get(test_url, proxies=proxy, timeout=5)
+        return response.status_code == 200
+    except Exception:
+        return False
 
-
+def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
+    # Try without proxy first
+    pytrends = TrendReq(hl='en-US', tz=360)
+    try:
+        pytrends.build_payload(keywords, timeframe=timeframe)
+        if is_region:
+            # Just attempt to fetch region data
+            data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
+        else:
+            # Attempt to fetch interest over time data
+            data = pytrends.interest_over_time()
+        return pytrends
+    except Exception as e:
+        # Check if it's a 429 error and try proxies if so
+        if "429" in str(e):
+            proxies = fetch_free_proxies()
+            for proxy in proxies:
+                if test_proxy(proxy):
+                    # Try pytrends with this proxy
+                    try:
+                        pytrends = TrendReq(hl='en-US', tz=360, proxies=proxy)
+                        pytrends.build_payload(keywords, timeframe=timeframe)
+                        if is_region:
+                            data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
+                        else:
+                            data = pytrends.interest_over_time()
+                        return pytrends
+                    except Exception as e2:
+                        if "429" in str(e2):
+                            continue  # Try next proxy
+                        else:
+                            # Some other error, just continue
+                            continue
+            # If no proxy worked
+            st.error("⚠️ Too many requests (429) have been made. Tried using free proxies, but they did not work. Please try again later.")
+            st.stop()
+        else:
+            # Some other error
+            raise e
 
 
 # Initialize summarization pipeline with caching to improve performance
@@ -41,7 +107,6 @@ def load_summarizer():
     except Exception as e:
         st.error(f"Error loading summarization model: {e}")
         return None
-
 
 
 # Function Definitions
@@ -90,7 +155,7 @@ def summarize_text(link):
             content_type = page_response.headers.get('Content-Type', '')
             if 'text/html' not in content_type:
                 return "The linked content is not HTML and cannot be summarized."
-            
+
             soup = BeautifulSoup(page_response.content, "html.parser")
             paragraphs = soup.find_all('p')
             text_content = " ".join([p.get_text() for p in paragraphs])[:4000]
@@ -119,7 +184,6 @@ def show_trends(keywords, start_date, end_date):
         st.warning("Please provide at least one keyword.")
         return
 
-    pytrends = TrendReq(hl='en-US', tz=360)
     today = datetime.now().date()
     if end_date > today:
         st.error("End Date cannot be in the future.")
@@ -132,7 +196,8 @@ def show_trends(keywords, start_date, end_date):
     timeframe = f"{start_date.strftime('%Y-%m-%d')} {end_date.strftime('%Y-%m-%d')}"
 
     try:
-        pytrends.build_payload(keywords, timeframe=timeframe)
+        # Attempt to get pytrends instance with retries/proxies if needed
+        pytrends = get_pytrends_instance_with_retries(keywords, timeframe)
         data = pytrends.interest_over_time()
 
         if data.empty:
@@ -161,7 +226,6 @@ def show_trending_regions(keyword, start_date, end_date):
     """
     Visualize the regions where the keyword is trending on a geographic map.
     """
-    pytrends = TrendReq(hl='en-US', tz=360)
     today = datetime.now().date()
     if end_date > today:
         st.error("End Date cannot be in the future.")
@@ -174,7 +238,8 @@ def show_trending_regions(keyword, start_date, end_date):
     timeframe = f"{start_date.strftime('%Y-%m-%d')} {end_date.strftime('%Y-%m-%d')}"
 
     try:
-        pytrends.build_payload([keyword], timeframe=timeframe)
+        # Attempt to get pytrends instance with retries/proxies if needed
+        pytrends = get_pytrends_instance_with_retries([keyword], timeframe, is_region=True)
         data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
 
         if not data.empty:
@@ -214,7 +279,7 @@ with st.expander("📖 User Guide"):
     - **Filters**:
         - **Date Range**: Select from predefined date ranges to restrict search results.
         - **Content Type**: Choose between 'All' or 'Images'. Summaries are not available for images.
-        - **Domain Filter**: Include or exclude specific domains (e.g., `site:wikipedia.org` or `-site:example.com`).
+        - **Domain Filter**: Include or exclude specific domains (e.g., site:wikipedia.org or -site:example.com).
     - **Search**: Click to perform the search.
     - **Summarize**: For each result (excluding images), click the "Summarize" button to generate a summary of the content.
 
@@ -286,9 +351,9 @@ with tabs[0]:
 ### Google Search & Summarizer Tab ###
 with tabs[1]:
     st.header("Google Custom Search")
-    
+
     summarizer = load_summarizer()
-    
+
     # Search Query
     query = st.text_input("Search Query", value="Persian Gulf history", help="Enter the term you want to search on Google")
 
@@ -323,7 +388,7 @@ with tabs[1]:
             # Increment search_id
             st.session_state['search_id'] += 1
             current_search_id = st.session_state['search_id']
-            
+
             # Map selected date range to date_restrict
             date_restrict = date_ranges.get(selected_date_range)
 
@@ -344,11 +409,11 @@ with tabs[1]:
             }
 
     # Display Search Results
-    if st.session_state.get('search_results') and "items" in st.session_state['search_results']['results']:
+    if st.session_state.get('search_results') and st.session_state['search_results']['results'] and "items" in st.session_state['search_results']['results']:
         search_id = st.session_state['search_results']['id']
         search_results = st.session_state['search_results']['results']
-        st.success(f"Found the results.")
-        
+        st.success("Found the results.")
+
         for idx, item in enumerate(search_results["items"]):
             st.markdown(f"### {item.get('title')}")
             st.markdown(f"[{item.get('link')}]({item.get('link')})")
