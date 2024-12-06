@@ -76,7 +76,7 @@ def test_proxy(proxy, speed_threshold=2):
 
 def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
     # Try without proxy first
-    pytrends = TrendReq(hl='en-US', tz=360, requests_args={'timeout': 10})
+    pytrends = TrendReq(hl='en-US', tz=360, requests_args={'timeout': 5})
     try:
         pytrends.build_payload(keywords, timeframe=timeframe)
         if is_region:
@@ -95,7 +95,7 @@ def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
                             hl='en-US', 
                             tz=360, 
                             proxies=proxy, 
-                            requests_args={'timeout': 10}
+                            requests_args={'timeout': 5}
                         )
                         pytrends.build_payload(keywords, timeframe=timeframe)
                         if is_region:
