@@ -83,7 +83,7 @@ def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
 
     # Try without proxy first
     try:
-        pytrends = TrendReq(hl='en-US', tz=360, requests_args={'timeout': 10})
+        pytrends = TrendReq(hl='en-US', tz=360)
         data = try_build(pytrends)
         return pytrends
     except Exception as e:
@@ -97,7 +97,7 @@ def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
                 # Test proxy before using
                 if test_proxy(proxy):
                     try:
-                        pytrends = TrendReq(hl='en-US', tz=360, proxies=proxy, requests_args={'timeout': 10})
+                        pytrends = TrendReq(hl='en-US', tz=360, proxies=proxy)
                         data = try_build(pytrends)
                         return pytrends
                     except Exception as e2:
