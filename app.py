@@ -17,7 +17,6 @@ st.set_page_config(
     initial_sidebar_state='collapsed'
 )
 
-
 # Constants for Google Custom Search engine
 API_KEY = st.secrets["API_KEY"]  # Replace with your Google Custom Search JSON API key #get it from here: https://developers.google.com/custom-search/v1/introduction #the line would be like this: API_KEY ='hfra......sbhfasjfhJ'
 CSE_ID = st.secrets["CSE_ID"]  # Replace with your Google Custom Search Engine ID (CSE ID) # get it from here: https://programmablesearchengine.google.com/ #the line would be like this: CSE_IDY ='123......sbhfasjfhJ'
@@ -45,18 +44,14 @@ def fetch_free_proxies():
                     p = proxy.strip()
                     if p:
                         proxies.append({"http": f"http://{p}", "https": f"http://{p}"})
-        except Exception as e:
-            st.error(f"Error in fetching some free proxies. They were supposed to be used for ditching the 'exceeding limit error' on Google 'free API' requests.")
+        except Exception:
+            st.error("Error in fetching some free proxies. They were supposed to be used for ditching the 'exceeding limit error' on Google 'free API' requests.")
     return proxies
-
-import time
-import requests
 
 def test_proxy(proxy, speed_threshold=2):
     """
     Test the given proxy by making a simple request to a known endpoint.
     Also measure the response time to ensure the proxy is not too slow.
-
     Parameters:
     - proxy (dict): A dictionary with "http" and/or "https" keys.
     - speed_threshold (int or float): Maximum acceptable response time in seconds.
@@ -78,7 +73,7 @@ def test_proxy(proxy, speed_threshold=2):
 def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
     # Try without proxy first
     try:
-        pytrends = TrendReq(hl='en-US', tz=360, requests_args={'timeout': 10})
+        pytrends = TrendReq(hl='en-US', tz=360)
         pytrends.build_payload(keywords, timeframe=timeframe)
         if is_region:
             data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
@@ -92,7 +87,7 @@ def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
                 if test_proxy(proxy):
                     # Try pytrends with this proxy
                     try:
-                        pytrends = TrendReq(hl='en-US', tz=360, proxies=proxy, requests_args={'timeout': 10})
+                        pytrends = TrendReq(hl='en-US', tz=360, proxies=proxy)
                         pytrends.build_payload(keywords, timeframe=timeframe)
                         if is_region:
                             data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
@@ -122,7 +117,6 @@ def load_summarizer():
     except Exception as e:
         st.error(f"Error loading summarization model: {e}")
         return None
-
 
 # Function Definitions
 def google_search(query, api_key, cse_id, num=10, date_restrict=None, search_type=None, domain_filter=None):
@@ -381,7 +375,7 @@ with tabs[1]:
     # Filters
     st.subheader("Filters")
 
-    # Predefined Date Ranges
+   # Predefined Date Ranges for Google Custom Search
     date_ranges = {
         "Today": "d1",             # Last day
         "This week": "w1",         # Last week
