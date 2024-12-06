@@ -77,25 +77,22 @@ def test_proxy(proxy, speed_threshold=2):
 
 def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
     # Try without proxy first
-    pytrends = TrendReq(hl='en-US', tz=360)
     try:
+        pytrends = TrendReq(hl='en-US', tz=360, requests_args={'timeout': 10})
         pytrends.build_payload(keywords, timeframe=timeframe)
         if is_region:
-            # Just attempt to fetch region data
             data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
         else:
-            # Attempt to fetch interest over time data
             data = pytrends.interest_over_time()
         return pytrends
     except Exception as e:
-        # Check if it's a 429 error and try proxies if so
         if "429" in str(e):
             proxies = fetch_free_proxies()
             for proxy in proxies:
                 if test_proxy(proxy):
-                    # Try pytrends with this proxy and a timeout
+                    # Try pytrends with this proxy
                     try:
-                        pytrends = TrendReq(hl='en-US', tz=360, proxies=proxy, requests_args={'timeout': 4})
+                        pytrends = TrendReq(hl='en-US', tz=360, proxies=proxy, requests_args={'timeout': 10})
                         pytrends.build_payload(keywords, timeframe=timeframe)
                         if is_region:
                             data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
@@ -106,15 +103,14 @@ def get_pytrends_instance_with_retries(keywords, timeframe, is_region=False):
                         if "429" in str(e2):
                             continue  # Try next proxy
                         else:
-                            # Some other error, just continue
                             continue
             # If no proxy worked
             st.error("⚠️ Too many requests have been made by this streamlit server to Google 'free API' today. I also tried to use some free proxies, but they didn't work. Please try again later.")
-            st.stop()
+            return None
         else:
             # Some other error
-            raise e
-
+            st.error(f"An error occurred while initializing pytrends: {e}")
+            return None
 
 
 # Initialize summarization pipeline with caching to improve performance
@@ -214,11 +210,14 @@ def show_trends(keywords, start_date, end_date):
 
     timeframe = f"{start_date.strftime('%Y-%m-%d')} {end_date.strftime('%Y-%m-%d')}"
 
-    try:
-        # Attempt to get pytrends instance with retries/proxies if needed
-        pytrends = get_pytrends_instance_with_retries(keywords, timeframe)
-        data = pytrends.interest_over_time()
+    # Get pytrends instance
+    pytrends = get_pytrends_instance_with_retries(keywords, timeframe)
+    if pytrends is None:
+        st.warning("Could not retrieve trend data. Please try again later.")
+        return
 
+    try:
+        data = pytrends.interest_over_time()
         if data.empty:
             st.warning("No trends data available for the given keywords and timeframe.")
             return
@@ -256,11 +255,14 @@ def show_trending_regions(keyword, start_date, end_date):
 
     timeframe = f"{start_date.strftime('%Y-%m-%d')} {end_date.strftime('%Y-%m-%d')}"
 
-    try:
-        # Attempt to get pytrends instance with retries/proxies if needed
-        pytrends = get_pytrends_instance_with_retries([keyword], timeframe, is_region=True)
-        data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
+    # Get pytrends instance
+    pytrends = get_pytrends_instance_with_retries([keyword], timeframe, is_region=True)
+    if pytrends is None:
+        st.warning("Could not retrieve regional trend data. Please try again later.")
+        return
 
+    try:
+        data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
         if not data.empty:
             data.reset_index(inplace=True)
             fig = px.choropleth(
