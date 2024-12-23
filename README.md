@@ -1,7 +1,7 @@
 
 # 🔍 Trendi Search
 
-Trendi Search is a web application built with Streamlit that allows users to explore Google Trends data and perform Google Custom Searches with summaries. It features trend analysis of specified keywords and offers summarization of web content using a pre-trained [**facebook/bart-base**](https://huggingface.co/facebook/bart-base) model.
+Trendi Search is a web application built with Streamlit that allows users to explore Google Trends data and perform Google Custom Searches with summaries. It features trend analysis of specified keywords and offers summarization of web content using a pre-trained [**facebook/bart-base**](https://huggingface.co/facebook/bart-base) model. 
 
 Try my app: https://trendisearch.streamlit.app/ 
 
