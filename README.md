@@ -24,7 +24,7 @@ Try my app: https://trendisearch.streamlit.app/
    ```
 
 2. Install dependencies:
-   ```bash
+   ```bash 
    pip install -r requirements.txt
    ```
 
