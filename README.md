@@ -19,7 +19,7 @@ Try my app: https://trendisearch.streamlit.app/
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/parsafarshadfar/trendi_search.git
+   git clone https://github.com/parsafarshadfar/trendi_search.git 
    cd trendi_search
    ```
 
