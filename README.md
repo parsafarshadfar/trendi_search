@@ -56,7 +56,7 @@ python -m streamlit run app.py
 3. Click "Search" to perform the search.
 4. Click "Summarize" to generate a summary of the content for each result.
 
-## Dependencies
+## Dependencies 
 
 The main dependencies are listed in `requirements.txt`:
 - `streamlit==1.39.0`
