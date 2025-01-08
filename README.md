@@ -48,7 +48,7 @@ python -m streamlit run app.py
 1. Specify the number of keywords and input each keyword.
 2. Select the start and end dates for trend analysis.
 3. Click "Show Trends" to generate trend graphs.
-4. Click "Show Trending Regions" to view a geographic map for the first keyword.
+4. Click "Show Trending Regions" to view a geographic map for the first keyword. 
 
 ### Google Search & Summarizer Tab
 1. Enter the search term in the **Search Query** field.
