@@ -67,7 +67,7 @@ The main dependencies are listed in `requirements.txt`:
 - `torch==2.5.1`
 - `tensorflow==2.18.0`
 - `transformers==4.46.1`
-- Additional dependencies are specified in the file.
+- Additional dependencies are specified in the file. 
 
 ## Acknowledgments
 
