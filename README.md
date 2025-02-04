@@ -13,7 +13,7 @@ Try my app: https://trendisearch.streamlit.app/
 
 ## Overview
 
-![App Screenshot](Screenshot.png)
+![App Screenshot](Screenshot.png) 
 
 ## Installation
 
